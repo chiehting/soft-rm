@@ -29,7 +29,9 @@ leting them permanently.`,
 		}
 		for _, arg := range args {
 			if err := trash.MoveToTrash(arg); err != nil {
-				fmt.Fprintf(os.Stderr, "Error moving %s to trash: %v\n", arg, err)
+				if !force {
+					fmt.Fprintf(os.Stderr, "Error moving %s to trash: %v\n", arg, err)
+				}
 			}
 		}
 		cleaner.SpawnCleanupProcess()
