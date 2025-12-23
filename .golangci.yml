@@ -1,0 +1,38 @@
+run:
+  timeout: 5m
+  skip-dirs:
+    - vendor/
+
+linters:
+  enable-all: true
+  disable:
+    - exhaustivestruct
+    - golint
+    - interfacer
+    - maligned
+    - scopelint
+    - structcheck
+    - varcheck
+    - deadcode
+    - ifshort
+    - nosnakecase
+    - nonamedreturns
+    - rowserrcheck
+    - sqlclosecheck
+    - wastedassign
+    - exhaustruct
+    - gochecknoinits
+    - gochecknoglobals
+    - gocognit
+    - gocyclo
+    - godox
+    - goerr113
+    - lll
+    - nestif
+    - testpackage
+    - wsl
+
+issues:
+  exclude-use-default: false
+  max-issues-per-linter: 0
+  max-same-issues: 0
