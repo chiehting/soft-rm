@@ -6,6 +6,7 @@ import (
 	"soft-rm/internal/cleaner"
 	"soft-rm/internal/trash"
 	"soft-rm/pkg/config"
+	"time"
 
 	"github.com/spf13/cobra"
 )
@@ -15,7 +16,7 @@ var backgroundCleanup bool
 var rootCmd = &cobra.Command{
 	Use:   "soft-rm [file1] [file2]...",
 	Short: "A safe rm command",
-	Long: `A safer rm command that moves files to a trash directory instead of deleting them permanently.`,
+	Long:  `A safer rm command that moves files to a trash directory instead of deleting them permanently.`,
 	Args:  cobra.ArbitraryArgs,
 	Run: func(cmd *cobra.Command, args []string) {
 		if backgroundCleanup {
@@ -27,7 +28,13 @@ var rootCmd = &cobra.Command{
 			cmd.Help()
 			return
 		}
+		now := time.Now()
 		for _, arg := range args {
+			if err := os.Chtimes(arg, now, now); err != nil {
+				if !force {
+					fmt.Fprintf(os.Stderr, "Error can not change day %s: %v\n", arg, err)
+				}
+			}
 			if err := trash.MoveToTrash(arg); err != nil {
 				if !force {
 					fmt.Fprintf(os.Stderr, "Error moving %s to trash: %v\n", arg, err)
