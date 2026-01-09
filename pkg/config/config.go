@@ -16,7 +16,7 @@ type Config struct {
 var (
 	cfg         *Config
 	configPath  = "~/.config/soft-rm/config.json"
-	defaultPath = "~/.trash"
+	defaultPath = "~/.soft-rm"
 )
 
 func LoadConfig() (*Config, error) {
@@ -58,6 +58,13 @@ func LoadConfig() (*Config, error) {
 		TrashPath:     viper.GetString("trash_path"),
 		RetentionDays: viper.GetInt("retention_days"),
 	}
+
+	// Ensure trashPath is always expanded after loading/defaulting
+	expandedTrashPath, err := expandPath(cfg.TrashPath)
+	if err != nil {
+		return nil, err
+	}
+	cfg.TrashPath = expandedTrashPath
 
 	return cfg, nil
 }
