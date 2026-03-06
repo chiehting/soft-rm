@@ -2,6 +2,7 @@ package config
 
 import (
 	"encoding/json"
+	"errors"
 	"os"
 	"path/filepath"
 
@@ -14,9 +15,9 @@ type Config struct {
 }
 
 var (
-	cfg         *Config
-	configPath  = "~/.config/soft-rm/config.json"
-	defaultPath = "~/.soft-rm"
+	cfg              *Config
+	configPath       = "~/.config/soft-rm/config.json"
+	defaultTrashPath = "~/.trash"
 )
 
 func LoadConfig() (*Config, error) {
@@ -33,20 +34,17 @@ func LoadConfig() (*Config, error) {
 	viper.SetConfigType("json")
 
 	// Set default values
-	trashPath, err := expandPath(defaultPath)
+	trashPath, err := expandPath(defaultTrashPath)
 	if err != nil {
 		return nil, err
 	}
 	viper.SetDefault("trash_path", trashPath)
-	viper.SetDefault("retention_days", 30)
+	viper.SetDefault("retention_days", 7)
 
 	if err := viper.ReadInConfig(); err != nil {
-		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
-			// Config file not found; create it with defaults
+		var configFileNotFoundError viper.ConfigFileNotFoundError
+		if errors.As(err, &configFileNotFoundError) || errors.Is(err, os.ErrNotExist) {
 			if err := os.MkdirAll(filepath.Dir(p), 0755); err != nil {
-				return nil, err
-			}
-			if err := viper.SafeWriteConfig(); err != nil {
 				return nil, err
 			}
 		} else {
